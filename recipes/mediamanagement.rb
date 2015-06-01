@@ -65,9 +65,9 @@ docker_container 'dperson/transmission' do
   port %w('9091:9091' '45555:45555' '51415:51415' '51415:51415/udp')
   env %w('TRUSER=username' 'TRPASSWD=password')
   volume %W('/opt/transmission:/config'
-            "#{node['torrentbox']['directories']['tv_downloads']}:/tv_downloads"
-            "#{node['torrentbox']['directories']['movie_downloads']}:/movie_downloads"
-            "#{node['torrentbox']['directories']['incomplete_downloads']}:/var/lib/transmission-daemon/incomplete"
+            "#{node['torrentbox']['directories']['tv_downloads'].gsub " ","\\ "}:/tv_downloads"
+            "#{node['torrentbox']['directories']['movie_downloads'].gsub " ","\\ "}:/movie_downloads"
+            "#{node['torrentbox']['directories']['incomplete_downloads'].gsub " ","\\ "}:/var/lib/transmission-daemon/incomplete"
             "/opt/transmission:/var/lib/transmission-daemon/info"
             '/etc/localtime:/etc/localtime:ro')
 end
@@ -79,8 +79,8 @@ docker_container 'timhaak/sickrage' do
   port '8081:8081'
   link 'transmission:transmission'
   volume %W('/opt/SickRage:/config'
-            "#{node['torrentbox']['directories']['tv_downloads']}:/tv_downloads"
-            "#{node['torrentbox']['directories']['tv']}:/tv"
+            "#{node['torrentbox']['directories']['tv_downloads'].gsub " ","\\ "}:/tv_downloads"
+            "#{node['torrentbox']['directories']['tv'].gsub " ","\\ "}:/tv"
             '/etc/localtime:/etc/localtime:ro')
 end
 
@@ -91,8 +91,8 @@ docker_container 'timhaak/couchpotato' do
   port '5050:5050'
   link 'transmission:transmission'
   volume %W('/opt/CouchPotato:/config'
-            "#{node['torrentbox']['directories']['movie_downloads']}:/movie_downloads"
-            "#{node['torrentbox']['directories']['movies']}:/movies"
+            "#{node['torrentbox']['directories']['movie_downloads'].gsub " ","\\ "}:/movie_downloads"
+            "#{node['torrentbox']['directories']['movies'].gsub " ","\\ "}:/movies"
             '/etc/localtime:/etc/localtime:ro')
 end
 
@@ -102,7 +102,7 @@ docker_container 'timhaak/plex' do
   detach true
   port '32400:32400'
   volume %W('/opt/plex:/config'
-            "#{node['torrentbox']['directories']['tv']}:/tv"
-            "#{node['torrentbox']['directories']['movies']}:/movies"
+            "#{node['torrentbox']['directories']['tv'].gsub " ","\\ "}:/tv"
+            "#{node['torrentbox']['directories']['movies'].gsub " ","\\ "}:/movies"
             '/etc/localtime:/etc/localtime:ro')
 end
