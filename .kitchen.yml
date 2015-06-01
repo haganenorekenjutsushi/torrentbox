@@ -1,0 +1,37 @@
+---
+driver:
+  name: vagrant
+  network:
+  - ["forwarded_port", {guest: 80, host: 8080,auto_correct: true}]
+  - ["forwarded_port", {guest: 8081, host: 8081,auto_correct: true}]
+  - ["forwarded_port", {guest: 5050, host: 5050,auto_correct: true}]
+  - ["forwarded_port", {guest: 445, host: 4445,auto_correct: true}]
+  - ["forwarded_port", {guest: 32400, host: 32400,auto_correct: true}]
+  - ["forwarded_port", {guest: 9091, host: 9091,auto_correct: true}]
+  - ["forwarded_port", {guest: 51415, host: 51415,auto_correct: true}]
+  - ["forwarded_port", {guest: 51415, host: 51415,auto_correct: true,protocol: udp}]
+  - ["private_network", {type: dhcp}]
+  vagrantfiles: 
+      - vagrantfile.rb
+provisioner:
+  name: chef_zero
+
+platforms:
+  - name: ubuntu-14.04
+
+suites:
+  - name: default
+    driver:
+      customize:
+        memory: 1024
+        cpus: 2
+    run_list:
+      - recipe[test::default]
+      - recipe[apt::default]
+      - recipe[torrentbox::default]
+      - recipe[snapraid::default]
+    attributes:
+      samba:
+        hosts_allow: "0.0.0.0/0"
+        interfaces: "0.0.0.0/0"
+    data_bags_path: "test/integration/data_bags" 
