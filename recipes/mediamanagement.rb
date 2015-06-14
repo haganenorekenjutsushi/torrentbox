@@ -40,15 +40,18 @@ cookbook_file 'config.ini' do
 end
 
 # Pull latest image
-docker_image 'timhaak/sickrage' do
-  action :pull_if_missing
+docker_image 'haganenorekenjutsushi/sickrage' do 
+  source 'github.com/haganenorekenjutsushi/sickrage-docker'
+  action :build_if_missing
 end
 # Pull latest image
 docker_image 'timhaak/transmission' do
+  cmd_timeout 900
   action :pull_if_missing
 end
 # Pull latest image
 docker_image 'timhaak/couchpotato' do
+  cmd_timeout 900
   action :pull_if_missing
 end
 # Pull latest image
@@ -73,12 +76,12 @@ docker_container 'dperson/transmission' do
 end
 
 # Install SickRage
-docker_container 'timhaak/sickrage' do
+docker_container 'haganenorekenjutsushi/sickrage' do
   container_name 'sickrage'
   detach true
   port '8081:8081'
   link 'transmission:transmission'
-  volume %W('/opt/SickRage:/config'
+  volume %W('/opt/SickRage/:/config'
             "#{node['torrentbox']['directories']['tv_downloads'].gsub " ","\\ "}:/tv_downloads"
             "#{node['torrentbox']['directories']['tv'].gsub " ","\\ "}:/tv"
             '/etc/localtime:/etc/localtime:ro')
