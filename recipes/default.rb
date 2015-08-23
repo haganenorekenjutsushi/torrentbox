@@ -22,6 +22,7 @@ node['torrentbox']['disks'].each do |disk|
     fstype disk['fstype']
     options disk['options']
     action [:mount, :enable]
+    ignore_failure true
     not_if { ::File.directory?('/vagrant') }
   end
 end
