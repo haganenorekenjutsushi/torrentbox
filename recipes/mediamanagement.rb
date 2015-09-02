@@ -82,6 +82,7 @@ docker_container 'haganenorekenjutsushi/sickrage' do
   port '8081:8081'
   link 'transmission:transmission'
   volume %W('/opt/SickRage/:/config'
+            "#{node['torrentbox']['directories']['tv_downloads'].gsub ' ', '\\ '}:/downloads"
             "#{node['torrentbox']['directories']['tv_downloads'].gsub ' ', '\\ '}:/tv_downloads"
             "#{node['torrentbox']['directories']['tv'].gsub ' ', '\\ '}:/tv"
             '/etc/localtime:/etc/localtime:ro')
