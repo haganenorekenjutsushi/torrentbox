@@ -12,30 +12,35 @@ include_recipe 'docker::default'
     owner 'root'
     action :create
     recursive true
+    mode '0755'
   end
 end
 
 # Default transmission settings
 cookbook_file 'settings.json' do
   path '/opt/transmission/settings.json'
+  mode '0755'
   action :create_if_missing
 end
 
 # Default Plex settings
 cookbook_file 'Preferences.xml' do
   path "/opt/plex/Library/Application\ Support/Plex\ Media\ Server/Preferences.xml"
+  mode '0755'
   action :create_if_missing
 end
 
 # Default Couchpotato settings
 cookbook_file 'CouchPotato.cfg' do
   path '/opt/CouchPotato/CouchPotato.cfg'
+  mode '0755'
   action :create_if_missing
 end
 
 # Default SickRage settings
 cookbook_file 'config.ini' do
   path '/opt/SickRage/config.ini'
+  mode '0755'
   action :create_if_missing
 end
 
