@@ -3,7 +3,8 @@ default['torrentbox'] = {
   'dashboard' => {
     'path' => '/var/www/html/',
     'repo' => 'git://github.com/haganenorekenjutsushi/torrentbox-dashboard.git',
-    'diskUsagePath' => '/'
+    'diskUsagePath' => '/',
+    'hostname' => '192.168.1.253'
   },
 
   'disks' => [

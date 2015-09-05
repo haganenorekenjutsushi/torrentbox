@@ -42,7 +42,8 @@ end
 template "#{node['torrentbox']['dashboard']['path']}/config.py" do
   source 'dashboard.py.erb'
   variables(
-    diskUsagePath: node['torrentbox']['dashboard']['diskUsagePath']
+    diskUsagePath: node['torrentbox']['dashboard']['diskUsagePath'],
+    hostname: node['torrentbox']['dashboard']['hostname']
   )
   mode '777'
   action :create
