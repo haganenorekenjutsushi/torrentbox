@@ -12,7 +12,7 @@ include_recipe 'docker::default'
     owner 'root'
     action :create
     recursive true
-    mode '0755'
+    mode '0777'
   end
 end
 
