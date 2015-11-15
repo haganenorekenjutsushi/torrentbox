@@ -1,5 +1,8 @@
 # Install Docker
-include_recipe 'docker::default'
+docker_installation 'default' do
+  repo 'main'
+  action :create
+end
 
 # Create directories
 [
@@ -45,73 +48,98 @@ cookbook_file 'config.ini' do
 end
 
 # Pull latest image
-docker_image 'haganenorekenjutsushi/sickrage' do
-  source 'github.com/haganenorekenjutsushi/sickrage-docker'
-  action :build_if_missing
+docker_image 'linuxserver/plex' do
+  write_timeout 900
+  read_timeout 900
+  action :pull
+end
+
+# Pull latest image
+docker_image 'linuxserver/sickrage' do
+  write_timeout 900
+  read_timeout 900
+  action :pull
 end
 # Pull latest image
-docker_image 'timhaak/transmission' do
-  cmd_timeout 900
-  action :pull_if_missing
+docker_image 'dperson/transmission' do
+  write_timeout 900
+  read_timeout 900
+  action :pull
 end
 # Pull latest image
 docker_image 'timhaak/couchpotato' do
-  cmd_timeout 900
-  action :pull_if_missing
-end
-# Pull latest image
-docker_image 'timhaak/plex' do
-  cmd_timeout 900
-  action :pull_if_missing
+  write_timeout 900
+  read_timeout 900
+  action :pull
 end
 
+
 # Install Transmission
-docker_container 'dperson/transmission' do
-  container_name 'transmission'
+docker_container 'transmission' do
+  repo 'dperson/transmission'
   detach true
-  cmd_timeout 900
-  port %w('9091:9091' '45555:45555' '51415:51415' '51415:51415/udp')
+  write_timeout 900
+  read_timeout 900
+  port ['9091:9091', '45555:45555', '51415:51415', '51415:51415/udp']
   env %w('TRUSER=username' 'TRPASSWD=password')
-  volume %W('/opt/transmission:/config'
-            "#{node['torrentbox']['directories']['tv_downloads'].gsub ' ', '\\ '}:/tv_downloads"
-            "#{node['torrentbox']['directories']['movie_downloads'].gsub ' ', '\\ '}:/movie_downloads"
-            "#{node['torrentbox']['directories']['incomplete_downloads'].gsub ' ', '\\ '}:/var/lib/transmission-daemon/incomplete"
-            "/opt/transmission:/var/lib/transmission-daemon/info"
-            '/etc/localtime:/etc/localtime:ro')
+  binds [
+    '/opt/transmission:/config',
+    "#{node['torrentbox']['directories']['tv_downloads'] }:/tv_downloads",
+    "#{node['torrentbox']['directories']['movie_downloads'] }:/movie_downloads",
+    "#{node['torrentbox']['directories']['incomplete_downloads'] }:/var/lib/transmission-daemon/incomplete",
+    "#{node['torrentbox']['directories']['tv_downloads'] }:/var/lib/transmission-daemon/downloads",
+    "/opt/transmission:/var/lib/transmission-daemon/info",
+    '/etc/localtime:/etc/localtime:ro'
+  ]
+  action [:run_if_missing]
 end
 
 # Install SickRage
-docker_container 'haganenorekenjutsushi/sickrage' do
-  container_name 'sickrage'
+docker_container 'sickrage' do
+  repo 'linuxserver/sickrage'
+  write_timeout 900
+  read_timeout 900
   detach true
   port '8081:8081'
-  link 'transmission:transmission'
-  volume %W('/opt/SickRage/:/config'
-            "#{node['torrentbox']['directories']['tv_downloads'].gsub ' ', '\\ '}:/downloads"
-            "#{node['torrentbox']['directories']['tv_downloads'].gsub ' ', '\\ '}:/tv_downloads"
-            "#{node['torrentbox']['directories']['tv'].gsub ' ', '\\ '}:/tv"
-            '/etc/localtime:/etc/localtime:ro')
+  links ['transmission:transmission']
+  binds [
+    '/opt/SickRage/:/config',
+    "#{node['torrentbox']['directories']['tv_downloads'] }:/downloads",
+    "#{node['torrentbox']['directories']['tv_downloads'] }:/tv_downloads",
+    "#{node['torrentbox']['directories']['tv'] }:/tv",
+    '/etc/localtime:/etc/localtime:ro'
+  ]
 end
 
 # Install CouchPotato
-docker_container 'timhaak/couchpotato' do
-  container_name 'couchpotato'
+docker_container 'couchpotato' do
+  repo 'timhaak/couchpotato'
+  write_timeout 900
+  read_timeout 1800
   detach true
   port '5050:5050'
-  link 'transmission:transmission'
-  volume %W('/opt/CouchPotato:/config'
-            "#{node['torrentbox']['directories']['movie_downloads'].gsub ' ', '\\ '}:/movie_downloads"
-            "#{node['torrentbox']['directories']['movies'].gsub ' ', '\\ '}:/movies"
-            '/etc/localtime:/etc/localtime:ro')
+  links ['transmission:transmission']
+  binds [
+    '/opt/CouchPotato:/config',
+    "#{node['torrentbox']['directories']['movie_downloads'] }:/movie_downloads",
+    "#{node['torrentbox']['directories']['movies'] }:/movies",
+    '/etc/localtime:/etc/localtime:ro'
+  ]
 end
 
 # Install Plex
-docker_container 'timhaak/plex' do
-  container_name 'plex'
+docker_container 'plex' do
+  repo 'linuxserver/plex'
+  write_timeout 900
+  read_timeout 900
+  network_mode 'host'
   detach true
   port '32400:32400'
-  volume %W('/opt/plex:/config'
-            "#{node['torrentbox']['directories']['tv'].gsub ' ', '\\ '}:/tv"
-            "#{node['torrentbox']['directories']['movies'].gsub ' ', '\\ '}:/movies"
-            '/etc/localtime:/etc/localtime:ro')
+  env %w('PUID=root' 'PGID=root')
+  binds [
+    '/opt/plex:/config',
+    "#{node['torrentbox']['directories']['tv'] }:/data/tvshows",
+    "#{node['torrentbox']['directories']['movies'] }:/data/movies",
+    '/etc/localtime:/etc/localtime:ro'
+  ]
 end
